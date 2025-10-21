@@ -15,7 +15,7 @@
           subtitle: "¿Cómo podemos ayudar?",
           position: "right",
           initialMessages: ["Hola, ¿cómo podemos ayudarte?"],
-          toggleButtonEnabled: true, // MANTER TRUE - o widget cria o botão dele
+          toggleButtonEnabled: false, // ⚠️ MUDANÇA: DESABILITAR o botão padrão
           toggleButtonBgColor: "#42a5f5",
           isAudioEnabled: false
         }
@@ -23,13 +23,11 @@
     </script>
     <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
     
-    <!-- CSS para esconder o botão padrão do widget -->
+    <!-- CSS para garantir que esconde qualquer botão flutuante -->
     <style>
-      /* Esconde o botão flutuante padrão do WhatIcket */
-      /* O widget geralmente cria um botão com essas características */
-      [data-wtt-toggle],
+      /* Esconde qualquer botão flutuante que o widget criar */
       button[style*="position: fixed"],
-      div[style*="position: fixed"][style*="z-index"] > button {
+      button[style*="position:fixed"] {
         display: none !important;
       }
       
@@ -47,13 +45,25 @@
         font-weight: bold;
         cursor: pointer;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 9999;
+        z-index: 99999; /* Z-index bem alto */
         transition: all 0.3s ease;
       }
       
       #meu-botao-chat:hover {
         background-color: #1e88e5;
         transform: scale(1.05);
+      }
+      
+      /* Esconde o iframe/widget inicialmente */
+      iframe[src*="widget"],
+      iframe[src*="whaticket"] {
+        display: none !important;
+      }
+      
+      /* Quando o widget estiver "aberto", mostra o iframe */
+      iframe[src*="widget"].widget-aberto,
+      iframe[src*="whaticket"].widget-aberto {
+        display: block !important;
       }
     </style>
 </head>
@@ -114,42 +124,84 @@
     
     <script src="./script.js"></script>
     
-    <!-- Script para controlar o widget através do seu botão -->
+    <!-- Script para controlar o widget -->
     <script>
-      // Aguarda o carregamento completo da página
-      window.addEventListener('load', function() {
+      // Variável para controlar se o widget está aberto
+      let widgetAberto = false;
+      
+      // Função para tentar encontrar e controlar o widget
+      function toggleWidget() {
+        console.log('Tentando abrir/fechar widget...');
         
-        // Encontra o seu botão personalizado
+        // Procura o iframe do widget (pode demorar alguns segundos para carregar)
+        const iframe = document.querySelector('iframe[src*="widget"]') || 
+                       document.querySelector('iframe[src*="whaticket"]') ||
+                       document.querySelector('iframe');
+        
+        if (iframe) {
+          console.log('Iframe encontrado:', iframe);
+          
+          if (widgetAberto) {
+            // Fecha o widget
+            iframe.classList.remove('widget-aberto');
+            widgetAberto = false;
+            console.log('Widget fechado');
+          } else {
+            // Abre o widget
+            iframe.classList.add('widget-aberto');
+            widgetAberto = true;
+            console.log('Widget aberto');
+          }
+        } else {
+          console.log('Widget ainda não carregou. Procurando por outros elementos...');
+          
+          // Tenta encontrar qualquer elemento do widget
+          const todosIframes = document.querySelectorAll('iframe');
+          console.log('Total de iframes encontrados:', todosIframes.length);
+          
+          if (todosIframes.length > 0) {
+            const ultimoIframe = todosIframes[todosIframes.length - 1];
+            ultimoIframe.classList.add('widget-aberto');
+            widgetAberto = true;
+            console.log('Forçando abertura do último iframe');
+          } else {
+            alert('Widget ainda está carregando. Aguarde alguns segundos e tente novamente.');
+          }
+        }
+      }
+      
+      // Aguarda o DOM carregar
+      document.addEventListener('DOMContentLoaded', function() {
         const meuBotao = document.getElementById('meu-botao-chat');
         
-        // Adiciona o evento de clique no seu botão
-        meuBotao.addEventListener('click', function() {
-          
-          // MÉTODO 1: Procura pelo botão original do widget (que está escondido) e simula um clique
-          // O widget geralmente cria um botão, então podemos procurar por ele
-          const botaoOriginal = document.querySelector('[data-wtt-toggle]') || 
-                                document.querySelector('button[style*="position: fixed"]');
-          
-          if (botaoOriginal) {
-            botaoOriginal.click(); // Simula clique no botão escondido
-            return;
-          }
-          
-          // MÉTODO 2: Se não encontrar o botão, procura pelo iframe ou container do widget
-          const widgetFrame = document.querySelector('iframe[src*="whaticket"]') ||
-                              document.querySelector('iframe[src*="widget"]') ||
-                              document.querySelector('[data-wtt-widget]') ||
-                              document.querySelector('div[id*="wtt"]');
-          
-          if (widgetFrame) {
-            // Torna o widget visível
-            widgetFrame.style.display = 'block';
-            widgetFrame.style.visibility = 'visible';
-            widgetFrame.style.opacity = '1';
-          } else {
-            console.log('Widget ainda não carregado. Aguarde alguns segundos.');
+        if (meuBotao) {
+          meuBotao.addEventListener('click', function() {
+            console.log('Botão clicado!');
+            toggleWidget();
+          });
+          console.log('Event listener adicionado ao botão');
+        } else {
+          console.error('Botão não encontrado!');
+        }
+      });
+      
+      // Observa quando novos elementos são adicionados à página (para pegar o iframe do widget)
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.tagName === 'IFRAME') {
+                console.log('Novo iframe detectado:', node);
+              }
+            });
           }
         });
+      });
+      
+      // Inicia o observador
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
       });
     </script>
 </body>

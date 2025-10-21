@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="./style.css">
     <title>Jogo da memória</title>
     
-    <!-- Configuração do Widget WhatIcket -->
     <script>
       window.WTT_API = {
         config: {
@@ -15,7 +14,7 @@
           subtitle: "¿Cómo podemos ayudar?",
           position: "right",
           initialMessages: ["Hola, ¿cómo podemos ayudarte?"],
-          toggleButtonEnabled: false, // ⚠️ FALSE = esconde o botão do widget
+          toggleButtonEnabled: false,
           toggleButtonBgColor: "#42a5f5",
           isAudioEnabled: false
         }
@@ -24,33 +23,40 @@
     <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
     
     <style>
-      /* Estilo do seu botão personalizado */
+      /* Container do topo */
+      .header-container {
+        text-align: center;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      
+      /* Estilo do botão no topo */
       #meu-botao-chat {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 15px 25px;
+        padding: 12px 30px;
         background-color: #42a5f5;
         color: white;
         border: none;
-        border-radius: 50px;
+        border-radius: 25px;
         font-size: 16px;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 99999;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16);
         transition: all 0.3s ease;
       }
       
       #meu-botao-chat:hover {
         background-color: #1e88e5;
-        transform: scale(1.05);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.2);
       }
     </style>
 </head>
 <body>
-    <!-- SEU BOTÃO PERSONALIZADO -->
-    <button id="meu-botao-chat">💬 Iniciar Chat</button>
+    <!-- HEADER COM BOTÃO NO TOPO -->
+    <header class="header-container">
+        <h1>Jogo da Memória</h1>
+        <button id="meu-botao-chat">💬 Precisa de ajuda? Fale conosco!</button>
+    </header>
 
     <main class="memory-game">
         <div class="card" data-card="bowser">
@@ -105,17 +111,13 @@
     
     <script src="./script.js"></script>
     
-    <!-- Script SIMPLES para abrir o widget -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const meuBotao = document.getElementById('meu-botao-chat');
         
         meuBotao.addEventListener('click', function() {
-          // Usa a API oficial do widget para abrir/fechar
           if (window.WTT_API && window.WTT_API.toggle) {
             window.WTT_API.toggle();
-          } else {
-            console.error('Widget ainda não carregou');
           }
         });
       });

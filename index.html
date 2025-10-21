@@ -15,7 +15,7 @@
           subtitle: "¿Cómo podemos ayudar?",
           position: "right",
           initialMessages: ["Hola, ¿cómo podemos ayudarte?"],
-          toggleButtonEnabled: true, // Deixar true para o widget criar o botão (mas vamos esconder)
+          toggleButtonEnabled: true, // Widget cria o botão
           toggleButtonBgColor: "#42a5f5",
           isAudioEnabled: false
         }
@@ -24,16 +24,6 @@
     <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
     
     <style>
-      /* ESCONDE o botão do widget COMPLETAMENTE */
-      button[style*="position: fixed"][style*="bottom"],
-      button[style*="position: fixed"][style*="right"],
-      button[style*="background"],
-      [data-wtt-toggle] {
-        display: none !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-      }
-      
       /* Estilo do seu botão personalizado */
       #meu-botao-chat {
         position: fixed;
@@ -55,6 +45,12 @@
       #meu-botao-chat:hover {
         background-color: #1e88e5;
         transform: scale(1.05);
+      }
+      
+      /* Classe para esconder o botão do widget */
+      .esconder-botao-widget {
+        display: none !important;
+        visibility: hidden !important;
       }
     </style>
 </head>
@@ -116,101 +112,120 @@
     <script src="./script.js"></script>
     
     <script>
-      // Referência para o botão do widget
-      let botaoWidgetOriginal = null;
+      let botaoWidget = null;
+      let tentativas = 0;
+      const maxTentativas = 20; // 20 tentativas = 10 segundos
       
-      // Função para esconder o botão do widget
-      function esconderBotaoWidget() {
-        const seletores = [
-          'button[style*="position: fixed"]',
-          '[data-wtt-toggle]',
-          'button.wtt-button'
-        ];
+      // Função para procurar o botão do widget
+      function procurarBotaoWidget() {
+        console.log(`Procurando botão do widget... tentativa ${tentativas + 1}`);
         
-        for (let seletor of seletores) {
-          const botoes = document.querySelectorAll(seletor);
-          botoes.forEach(botao => {
-            if (botao.id !== 'meu-botao-chat') {
-              botao.style.setProperty('display', 'none', 'important');
-              botao.style.setProperty('visibility', 'hidden', 'important');
-              botao.style.setProperty('pointer-events', 'none', 'important');
-              botaoWidgetOriginal = botao;
-              console.log('Botão do widget escondido:', botao);
-            }
-          });
-        }
-      }
-      
-      // Função para abrir o widget clicando no botão escondido
-      function abrirWidget() {
-        console.log('Abrindo widget...');
+        // Procura todos os botões na página
+        const todosBotoes = document.querySelectorAll('button');
         
-        if (!botaoWidgetOriginal) {
-          // Procura pelo botão do widget
-          const seletores = [
-            'button[style*="position: fixed"]',
-            '[data-wtt-toggle]',
-            'button.wtt-button'
-          ];
+        for (let botao of todosBotoes) {
+          // Ignora o seu botão
+          if (botao.id === 'meu-botao-chat') continue;
           
-          for (let seletor of seletores) {
-            const botoes = document.querySelectorAll(seletor);
-            for (let botao of botoes) {
-              if (botao.id !== 'meu-botao-chat') {
-                botaoWidgetOriginal = botao;
-                break;
-              }
-            }
-            if (botaoWidgetOriginal) break;
+          // Verifica se é um botão fixo (provavelmente o do widget)
+          const style = window.getComputedStyle(botao);
+          if (style.position === 'fixed') {
+            console.log('✅ Botão do widget encontrado!', botao);
+            botaoWidget = botao;
+            
+            // Esconde o botão do widget
+            botao.classList.add('esconder-botao-widget');
+            console.log('✅ Botão do widget escondido');
+            
+            return true;
           }
         }
         
-        if (botaoWidgetOriginal) {
-          console.log('Clicando no botão do widget...');
-          botaoWidgetOriginal.click();
+        tentativas++;
+        
+        // Se não encontrou e ainda tem tentativas, tenta de novo
+        if (tentativas < maxTentativas) {
+          setTimeout(procurarBotaoWidget, 500);
+          return false;
         } else {
-          console.error('Botão do widget não encontrado!');
+          console.error('❌ Botão do widget não encontrado após', maxTentativas, 'tentativas');
+          console.log('Todos os botões na página:', document.querySelectorAll('button'));
+          return false;
         }
       }
       
-      // Quando a página carregar
+      // Função para abrir o widget
+      function abrirWidget() {
+        console.log('🚀 Tentando abrir widget...');
+        
+        if (botaoWidget) {
+          console.log('✅ Clicando no botão do widget');
+          botaoWidget.click();
+        } else {
+          console.log('⚠️ Botão do widget não encontrado, procurando novamente...');
+          
+          // Tenta encontrar de novo
+          const todosBotoes = document.querySelectorAll('button');
+          for (let botao of todosBotoes) {
+            if (botao.id === 'meu-botao-chat') continue;
+            
+            const style = window.getComputedStyle(botao);
+            if (style.position === 'fixed') {
+              console.log('✅ Botão encontrado, clicando...');
+              botao.click();
+              return;
+            }
+          }
+          
+          console.error('❌ Não foi possível encontrar o botão do widget');
+        }
+      }
+      
+      // Aguarda a página carregar
       window.addEventListener('load', function() {
-        console.log('Página carregada - iniciando setup');
+        console.log('📄 Página carregada');
         
-        // Esconde o botão do widget
-        esconderBotaoWidget();
+        // Começa a procurar o botão do widget após 1 segundo
+        setTimeout(() => {
+          procurarBotaoWidget();
+        }, 1000);
         
-        // Adiciona evento ao seu botão
+        // Configura o seu botão
         const meuBotao = document.getElementById('meu-botao-chat');
         if (meuBotao) {
           meuBotao.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Seu botão foi clicado!');
+            console.log('🖱️ Seu botão foi clicado!');
             abrirWidget();
           });
-          console.log('✅ Botão personalizad configurado');
+          console.log('✅ Seu botão está pronto');
         }
       });
       
-      // Observa quando novos elementos são adicionados (para esconder o botão do widget caso apareça depois)
+      // Observador para detectar quando o botão do widget é adicionado
       const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          mutation.addedNodes.forEach(function(node) {
+        if (botaoWidget) return; // Já encontrou, não precisa mais observar
+        
+        for (let mutation of mutations) {
+          for (let node of mutation.addedNodes) {
             if (node.tagName === 'BUTTON' && node.id !== 'meu-botao-chat') {
               const style = window.getComputedStyle(node);
               if (style.position === 'fixed') {
-                console.log('Novo botão fixo detectado - escondendo');
-                node.style.setProperty('display', 'none', 'important');
-                node.style.setProperty('visibility', 'hidden', 'important');
-                node.style.setProperty('pointer-events', 'none', 'important');
-                botaoWidgetOriginal = node;
+                console.log('✅ Botão do widget detectado pelo observer!');
+                botaoWidget = node;
+                node.classList.add('esconder-botao-widget');
+                observer.disconnect(); // Para de observar
+                break;
               }
             }
-          });
-        });
+          }
+        }
       });
       
-      observer.observe(document.body, { childList: true, subtree: true });
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+      });
     </script>
 </body>
 </html>

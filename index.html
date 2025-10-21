@@ -6,25 +6,61 @@
     <link rel="stylesheet" href="./style.css">
     <title>Jogo da memória</title>
     
-<!-- Place this code within the tag <head>: -->
-  <script>
-    window.WTT_API = {
-      config: {
-        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIyNmY1ZmU1Ny04MmUxLTRjMDUtOTQ0My0yNjUzNjkzOTM5NjEiLCJjb25uZWN0aW9uSWQiOiIxNTAwZTExYi0xMjJmLTRjYTAtYWQ5ZS05Y2VhNzhhMDhmNGUiLCJpYXQiOjE3MzA4NDMxNzd9.CzlMPbgFcJFEzbsz_JhgZZvR2h9ws1QZkKo-_7nC-Ok",
-        title: "¡Bienvenido al soporte!", // a title to be presented on the widget
-        subtitle: "¿Cómo podemos ayudar?", // (optional) a subtitle to be presented on the widget
-        position: "right", // (optional) values: left or right / default: left
-        initialMessages: ["Hola, ¿cómo podemos ayudarte?"], // (optional) values: an array of messages to be shown when the contact open the widget for the first time
-        toggleButtonEnabled: true, // (optional) enables a toggle button that opens/close the widget
-        toggleButtonBgColor: "#42a5f5", // (optional) the html background color of the toggle button
-        isAudioEnabled: false // enable the option to the widget user send audio messages
+    <!-- Configuração do Widget WhatIcket -->
+    <script>
+      window.WTT_API = {
+        config: {
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIyNmY1ZmU1Ny04MmUxLTRjMDUtOTQ0My0yNjUzNjkzOTM5NjEiLCJjb25uZWN0aW9uSWQiOiIxNTAwZTExYi0xMjJmLTRjYTAtYWQ5ZS05Y2VhNzhhMDhmNGUiLCJpYXQiOjE3MzA4NDMxNzd9.CzlMPbgFcJFEzbsz_JhgZZvR2h9ws1QZkKo-_7nC-Ok",
+          title: "¡Bienvenido al soporte!",
+          subtitle: "¿Cómo podemos ayudar?",
+          position: "right",
+          initialMessages: ["Hola, ¿cómo podemos ayudarte?"],
+          toggleButtonEnabled: true, // MANTER TRUE - o widget cria o botão dele
+          toggleButtonBgColor: "#42a5f5",
+          isAudioEnabled: false
+        }
+      };
+    </script>
+    <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
+    
+    <!-- CSS para esconder o botão padrão do widget -->
+    <style>
+      /* Esconde o botão flutuante padrão do WhatIcket */
+      /* O widget geralmente cria um botão com essas características */
+      [data-wtt-toggle],
+      button[style*="position: fixed"],
+      div[style*="position: fixed"][style*="z-index"] > button {
+        display: none !important;
       }
-      // You can contact our Support team for more advanced configurations.
-    };
-  </script>
-  <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
+      
+      /* Estilo do seu botão personalizado */
+      #meu-botao-chat {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: #42a5f5;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transition: all 0.3s ease;
+      }
+      
+      #meu-botao-chat:hover {
+        background-color: #1e88e5;
+        transform: scale(1.05);
+      }
+    </style>
 </head>
 <body>
+    <!-- SEU BOTÃO PERSONALIZADO -->
+    <button id="meu-botao-chat">💬 Iniciar Chat</button>
+
     <main class="memory-game">
         <div class="card" data-card="bowser">
             <img class="card-front" src="./img/bowser.jpg" alt="Face da carta">
@@ -75,6 +111,46 @@
             <img class="card-back" src="./img/box.png" alt="Verso da carta">
         </div>
     </main>
+    
     <script src="./script.js"></script>
+    
+    <!-- Script para controlar o widget através do seu botão -->
+    <script>
+      // Aguarda o carregamento completo da página
+      window.addEventListener('load', function() {
+        
+        // Encontra o seu botão personalizado
+        const meuBotao = document.getElementById('meu-botao-chat');
+        
+        // Adiciona o evento de clique no seu botão
+        meuBotao.addEventListener('click', function() {
+          
+          // MÉTODO 1: Procura pelo botão original do widget (que está escondido) e simula um clique
+          // O widget geralmente cria um botão, então podemos procurar por ele
+          const botaoOriginal = document.querySelector('[data-wtt-toggle]') || 
+                                document.querySelector('button[style*="position: fixed"]');
+          
+          if (botaoOriginal) {
+            botaoOriginal.click(); // Simula clique no botão escondido
+            return;
+          }
+          
+          // MÉTODO 2: Se não encontrar o botão, procura pelo iframe ou container do widget
+          const widgetFrame = document.querySelector('iframe[src*="whaticket"]') ||
+                              document.querySelector('iframe[src*="widget"]') ||
+                              document.querySelector('[data-wtt-widget]') ||
+                              document.querySelector('div[id*="wtt"]');
+          
+          if (widgetFrame) {
+            // Torna o widget visível
+            widgetFrame.style.display = 'block';
+            widgetFrame.style.visibility = 'visible';
+            widgetFrame.style.opacity = '1';
+          } else {
+            console.log('Widget ainda não carregado. Aguarde alguns segundos.');
+          }
+        });
+      });
+    </script>
 </body>
 </html>

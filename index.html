@@ -1,105 +1,181 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo da Memoria</title>
-  <link rel="stylesheet" href="./style.css">
-
-  <!-- Configuração do widget -->
-  <script>
-    window.WTT_API = {
-      config: {
-        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIyNmY1ZmU1Ny04MmUxLTRjMDUtOTQ0My0yNjUzNjkzOTM5NjEiLCJjb25uZWN0aW9uSWQiOiIxNTAwZTExYi0xMjJmLTRjYTAtYWQ5ZS05Y2VhNzhhMDhmNGUiLCJpYXQiOjE3MzA4NDMxNzd9.CzlMPbgFcJFEzbsz_JhgZZvR2h9ws1QZkKo-_7nC-Ok",
-        title: "¡Bienvenido al soporte!",
-        subtitle: "¿Cómo podemos ayudar?",
-        position: "right",
-        toggleButtonEnabled: false, // oculta o botão flutuante
-        isAudioEnabled: false
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Jogo da memória</title>
+    
+    <!-- Configuração do Widget WhatIcket -->
+    <script>
+      window.WTT_API = {
+        config: {
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIyNmY1ZmU1Ny04MmUxLTRjMDUtOTQ0My0yNjUzNjkzOTM5NjEiLCJjb25uZWN0aW9uSWQiOiIxNTAwZTExYi0xMjJmLTRjYTAtYWQ5ZS05Y2VhNzhhMDhmNGUiLCJpYXQiOjE3MzA4NDMxNzd9.CzlMPbgFcJFEzbsz_JhgZZvR2h9ws1QZkKo-_7nC-Ok",
+          title: "¡Bienvenido al soporte!",
+          subtitle: "¿Cómo podemos ayudar?",
+          position: "right",
+          initialMessages: ["Hola, ¿cómo podemos ayudarte?"],
+          toggleButtonEnabled: true, // ✅ DEIXAR TRUE para ter o botão do widget
+          toggleButtonBgColor: "#42a5f5",
+          isAudioEnabled: false
+        }
+      };
+    </script>
+    <script async crossorigin="*" src="https://public.whaticket.com/widget/staging/wtt-widget-default.js"></script>
+    
+    <style>
+      /* Estilo do seu botão personalizado */
+      #meu-botao-chat {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: #42a5f5;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 99999;
+        transition: all 0.3s ease;
       }
-    };
-  </script>
+      
+      #meu-botao-chat:hover {
+        background-color: #1e88e5;
+        transform: scale(1.05);
+      }
+    </style>
 </head>
-
 <body>
-  <!-- 🔹 Botão fixo no canto inferior direito -->
-  <button id="openChat" style="
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #42a5f5;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 12px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    z-index: 9999;
-  ">
-    Iniciar chat
-  </button>
+    <!-- SEU BOTÃO PERSONALIZADO -->
+    <button id="meu-botao-chat">💬 Iniciar Chat</button>
 
-  <!-- 🔹 Conteúdo original do jogo -->
-  <main class="memory-game">
-    <div class="card" data-card="bowser">
-      <img class="card-front" src="./img/bowser.jpg" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-    <div class="card" data-card="luigi">
-      <img class="card-front" src="./img/luigi.png" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-    <div class="card" data-card="mario">
-      <img class="card-front" src="./img/mario.png" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-    <div class="card" data-card="peach">
-      <img class="card-front" src="./img/peach.png" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-    <div class="card" data-card="toad">
-      <img class="card-front" src="./img/toad.png" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-    <div class="card" data-card="yoshi">
-      <img class="card-front" src="./img/yoshi.png" alt="Face da carta">
-      <img class="card-back" src="./img/box.png" alt="Verso da carta">
-    </div>
-  </main>
-
-  <!-- 🔹 Script do jogo -->
-  <script src="./script.js"></script>
-
-  <!-- 🔹 Carrega o widget de forma controlada -->
-  <script>
-    // Carrega o script do Whaticket e avisa quando estiver pronto
-    function loadWidgetScript(callback) {
-      const script = document.createElement("script");
-      script.src = "https://public.whaticket.com/widget/staging/wtt-widget-default.js";
-      script.crossOrigin = "*";
-      script.onload = callback; // dispara quando o script termina de carregar
-      document.body.appendChild(script);
-    }
-
-    // Função para abrir o chat
-    function openChat() {
-      if (window.WTT_API && typeof window.WTT_API.openWidget === "function") {
-        window.WTT_API.openWidget();
-      } else {
-        alert("El chat todavía se está cargando, intenta nuevamente en un momento.");
+    <main class="memory-game">
+        <div class="card" data-card="bowser">
+            <img class="card-front" src="./img/bowser.jpg" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="luigi">
+            <img class="card-front" src="./img/luigi.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="mario">
+            <img class="card-front" src="./img/mario.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="peach">
+            <img class="card-front" src="./img/peach.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="toad">
+            <img class="card-front" src="./img/toad.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="yoshi">
+            <img class="card-front" src="./img/yoshi.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="bowser">
+            <img class="card-front" src="./img/bowser.jpg" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="luigi">
+            <img class="card-front" src="./img/luigi.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="mario">
+            <img class="card-front" src="./img/mario.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="peach">
+            <img class="card-front" src="./img/peach.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="toad">
+            <img class="card-front" src="./img/toad.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+        <div class="card" data-card="yoshi">
+            <img class="card-front" src="./img/yoshi.png" alt="Face da carta">
+            <img class="card-back" src="./img/box.png" alt="Verso da carta">
+        </div>
+    </main>
+    
+    <script src="./script.js"></script>
+    
+    <script>
+      // Função para encontrar e clicar no botão do widget
+      function abrirWidgetAutomaticamente() {
+        console.log('Procurando botão do widget...');
+        
+        // Tenta vários seletores para encontrar o botão do widget
+        const botoesWidget = [
+          document.querySelector('button[style*="position: fixed"]'),
+          document.querySelector('button[style*="bottom"]'),
+          document.querySelector('[data-wtt-toggle]'),
+          document.querySelector('button.wtt-button'),
+          // Procura por todos os botões e pega o que está fixo
+          ...document.querySelectorAll('button')
+        ];
+        
+        // Filtra null e encontra o primeiro botão que provavelmente é do widget
+        for (let botao of botoesWidget) {
+          if (botao && botao.id !== 'meu-botao-chat') {
+            // Verifica se é o botão do widget pela posição ou estilo
+            const style = window.getComputedStyle(botao);
+            if (style.position === 'fixed') {
+              console.log('Botão do widget encontrado:', botao);
+              botao.click();
+              return true;
+            }
+          }
+        }
+        
+        console.log('Botão do widget não encontrado ainda');
+        return false;
       }
-    }
-
-    // Carrega o script assim que a página termina de carregar
-    window.addEventListener("load", () => {
-      loadWidgetScript(() => {
-        console.log("Widget Whaticket cargado correctamente");
+      
+      // Quando a página carregar
+      window.addEventListener('load', function() {
+        console.log('Página carregada');
+        
+        // Adiciona evento ao seu botão
+        const meuBotao = document.getElementById('meu-botao-chat');
+        if (meuBotao) {
+          meuBotao.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Seu botão foi clicado!');
+            
+            // Tenta abrir o widget imediatamente
+            const sucesso = abrirWidgetAutomaticamente();
+            
+            if (!sucesso) {
+              // Se não encontrou logo, tenta de novo após 500ms
+              console.log('Tentando de novo em 500ms...');
+              setTimeout(() => {
+                abrirWidgetAutomaticamente();
+              }, 500);
+            }
+          });
+          console.log('Botão configurado com sucesso');
+        }
       });
-    });
-
-    // Ativa o botão
-    document.getElementById("openChat").addEventListener("click", openChat);
-  </script>
+      
+      // Observa mudanças no DOM para pegar o botão do widget assim que aparecer
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(function(node) {
+            // Se um novo elemento foi adicionado e for um botão
+            if (node.tagName === 'BUTTON' || (node.querySelectorAll && node.querySelectorAll('button').length > 0)) {
+              console.log('Novo elemento adicionado ao DOM');
+            }
+          });
+        });
+      });
+      
+      observer.observe(document.body, { childList: true, subtree: true });
+    </script>
 </body>
 </html>
